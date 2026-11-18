@@ -31,10 +31,10 @@
   /* three display sizes, all steps of the same scale; same role = same size */
   --t-d1:clamp(76px, 19vw, 291px);   /* poster words: name, series titles, Made to order */
   /* Hierarchy, one step of the scale apart each time, so every level reads as a different level:
-     1. poster words  (d1, up to 291): the name, "Available paintings", "Let us paint your own story"
+     1. poster words  (d1, up to 291): the name, "Available artworks", "Where the work has been", "Let us paint your own story"
      2. phrases       (d2, up to 119): the three sentences with paintings inside, "Let's talk"
      3. group titles  (d1b, up to 76): Closeness, On stage, Smoke, Gold, Silver
-     4. section titles(d3, up to 61): Texture, colour, touch / Orange hair / Where the work has been
+     4. section titles(d3, up to 61): Texture, colour, touch / Orange hair / Shown and seen
         (inside a gallery the series name, Facets / Gilded, is 39 so the group title leads)
      5. labels and text (16 and 13) */
   --t-d2:clamp(31px, 3.6vw, 76px);
@@ -136,6 +136,13 @@ button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor
 .sale__item .zoom{width:100%}
 
 /* ───────── Lightbox ───────── */
+/* cursor: a dot right under the pointer and a thin ring that follows it softly (mouse and trackpad only) */
+.cur{position:fixed; left:0; top:0; z-index:200; pointer-events:none; border-radius:50%; opacity:0; transition:opacity .3s; mix-blend-mode:difference}
+.cur--dot{width:6px; height:6px; margin:-3px 0 0 -3px; background:#fff}
+.cur--ring{width:40px; height:40px; margin:-20px 0 0 -20px; border:1px solid #fff}
+html.has-cur .cur.is-on{opacity:1}
+html.has-cur, html.has-cur *{cursor:none !important}
+html.has-cur input, html.has-cur textarea, html.has-cur select{cursor:text !important}
 .lb{position:fixed; inset:0; z-index:100; display:grid; grid-template-columns:7fr 3fr; background:var(--paper)}
 .lb[hidden]{display:none}
 .lb--view{grid-template-columns:1fr}
@@ -202,13 +209,18 @@ a:hover .arrow{transform:translateX(6px)}
 .stage__title{position:absolute; left:50%; top:50%; z-index:4; margin:0; transform:translate(-50%,-50%); overflow:hidden; padding:.18em .1em; white-space:nowrap; pointer-events:none;
   font-family:var(--serif); font-weight:300; font-size:var(--t-d1); line-height:var(--lh-d1); letter-spacing:-.03em; color:var(--ink)}
 .stage__title span{display:block}
-.sw{position:absolute; margin:0; display:flex; flex-direction:column; gap:var(--s1); transform-origin:50% 60%; will-change:transform}
+.sw{position:absolute; margin:0; display:flex; flex-direction:column; gap:var(--s1); will-change:transform}
 .sw .zoom{flex:1; min-height:0}
 .sw img{width:100%; height:100%; object-fit:cover; box-shadow:0 1px 2px rgba(20,20,20,.08), 0 24px 48px -24px rgba(20,20,20,.35)}
 .sw figcaption{font-size:var(--t-cap); line-height:1.4; color:var(--ink-2); white-space:nowrap}
 .sw figcaption b{font-weight:400; color:var(--ink)}
+@media (min-width:861px){
+  /* on the big screen the paintings speak for themselves; the name appears under a painting on hover */
+  .sw figcaption{position:absolute; left:0; top:100%; margin-top:var(--s1); opacity:0; transform:translateY(-4px); transition:opacity .4s, transform .5s cubic-bezier(.19,1,.22,1); pointer-events:none}
+  .sw:hover figcaption{opacity:1; transform:none}
+}
 
-/* poster words, the same voice as the name: Available paintings */
+/* poster words, the same voice as the name: Available artworks */
 .poster-title{margin:0; padding:var(--section) var(--margin) 0; font-family:var(--serif); font-weight:300; font-size:var(--t-d1); line-height:var(--lh-d1); letter-spacing:-.03em}
 .poster-title__row{display:block}
 .poster-title__row:last-child{text-align:right}
@@ -217,6 +229,9 @@ a:hover .arrow{transform:translateX(6px)}
 .forsale__photo img{width:100%; height:100%; object-fit:cover}
 .forsale .forsale__title{z-index:3; color:var(--ink); mix-blend-mode:normal}
 .js .forsale__title{visibility:hidden}
+.reel .reel__title{z-index:6; color:#fff; mix-blend-mode:normal}   /* white, over the film */
+.js .reel__title{visibility:hidden}
+.namefx__title .namefx__row{white-space:nowrap}   /* a row is one line; the title shrinks to fit instead of wrapping */
 .js .forsale__photo{clip-path:inset(50% 0% 50% 0%)}
 
 /* ───────── 6. Available works: description left, paintings right ───────── */
@@ -265,17 +280,22 @@ a:hover .arrow{transform:translateX(6px)}
 .commission__stage{position:relative; height:clamp(560px, 110vh, 1100px); margin-bottom:var(--s15)}
 .commission__photo{position:absolute; left:50%; top:50%; z-index:2; height:84%; aspect-ratio:4/5; margin:0; transform:translate(-50%,-50%); overflow:hidden}
 .commission__photo img{width:100%; height:100%; object-fit:cover}
+/* the scribble: a loose ink drawing made in code, the start of a story that is not painted yet */
+.commission__scribble{position:absolute; left:50%; top:50%; z-index:2; width:min(78vw, 1100px); height:84%; transform:translate(-50%,-50%); pointer-events:none}
+.commission__scribble svg{display:block; width:100%; height:100%; overflow:visible}
+.commission__scribble path{fill:none; stroke:var(--ink); stroke-linecap:round; stroke-linejoin:round}
+.commission__scribble circle{fill:var(--ink)}
 .commission__title{position:absolute; inset:0; z-index:4; margin:0; pointer-events:none; font-family:var(--serif); font-weight:300; font-size:var(--t-d1); line-height:var(--lh-d1); letter-spacing:-.03em}
 .commission__row{position:absolute; white-space:nowrap}
 .commission__row:first-child{left:0; top:12%}
 .commission__row:last-child{right:0; bottom:10%}
 .cfloat{position:absolute; z-index:3; margin:0}
 .cfloat img{width:100%; height:auto}
-.cf-1{left:1%; top:2%; width:min(20vw, 300px)}
-.cf-2{right:7%; top:0; width:min(12vw, 190px)}
-.cf-3{left:9%; bottom:2%; width:min(14vw, 220px)}
-.cf-4{right:0; top:38%; width:min(22vw, 340px)}
-.cf-5{left:31%; bottom:-6%; width:min(9vw, 140px)}
+.cf-1{left:2%; top:6%; width:min(20vw, 300px)}
+.cf-2{right:9%; top:0; width:min(11vw, 170px)}
+.cf-2 img{aspect-ratio:1/1; object-fit:cover}   /* square */
+.cf-3{left:6%; bottom:4%; width:min(13vw, 200px)}
+.cf-4{right:1%; top:42%; width:min(16vw, 240px)}
 .commission__body{display:grid; grid-template-columns:5fr 7fr; column-gap:var(--s3); row-gap:var(--s3)}
 .commission__lead{margin:var(--s4) 0 0; font-size:var(--t-body); line-height:var(--lh-body); max-width:26rem}
 .offer{display:grid; grid-template-columns:1fr 1fr; column-gap:var(--s6)}
@@ -453,9 +473,10 @@ a:hover .arrow{transform:translateX(6px)}
         <figure class="sw" data-r="0.714" data-status="Sold" data-lb  data-title="Ballerina" data-year="2018" data-size="50 × 70 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="A dancer looks back over her shoulder, between pink walls and floating squares of colour."><button class="zoom" type="button" aria-label="Open Ballerina"><img src="assets/bright/20916121_1618816048191947_1680541017_n.jpg" alt="A ballerina in a turquoise tutu looking over her shoulder"></button><figcaption><b>Ballerina</b>, 2018</figcaption></figure>
         <figure class="sw" data-r="0.806" data-status="Sold" data-lb  data-title="On the chair" data-year="2023" data-size="60 × 75 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="Sunlight on skin, a turquoise chair and a pattern of sequins built up stroke by stroke."><button class="zoom" type="button" aria-label="Open On the chair"><img src="assets/bright/dd8e54107905053_5fb675936685e.jpg" alt="A woman seen from behind, sitting on a turquoise chair"></button><figcaption><b>On the chair</b>, 2023</figcaption></figure>
       </div>
-      <div class="stage__group" style="--gi:2" data-layout="2">
-        <figure class="sw" data-r="0.717" data-status="Sold" data-lb  data-title="Red hair, smoke" data-year="2022" data-size="50 × 70 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="Red hair, pink smoke and acid green: a portrait of a mood rather than a face."><button class="zoom" type="button" aria-label="Open Red hair, smoke"><img src="assets/bright/19911761_10213719668251806_989909012_o.jpg" alt="A red-haired woman smoking, painted in red, pink and green"></button><figcaption><b>Red hair, smoke</b>, 2022</figcaption></figure>
+      <div class="stage__group" style="--gi:2" data-layout="3">
         <figure class="sw" data-r="0.718" data-status="Available on request" data-lb  data-title="Blonde" data-year="2022" data-size="50 × 70 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="A cloud of yellow hair, a slow cigarette, a green afternoon."><button class="zoom" type="button" aria-label="Open Blonde"><img src="assets/bright/19911851_10213719668771819_1361194627_o.jpg" alt="A blonde woman smoking against a green background"></button><figcaption><b>Blonde</b>, 2022</figcaption></figure>
+        <figure class="sw" data-r="0.717" data-status="Sold" data-lb  data-title="Red hair, smoke" data-year="2022" data-size="50 × 70 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="Red hair, pink smoke and acid green: a portrait of a mood rather than a face."><button class="zoom" type="button" aria-label="Open Red hair, smoke"><img src="assets/bright/19911761_10213719668251806_989909012_o.jpg" alt="A red-haired woman smoking, painted in red, pink and green"></button><figcaption><b>Red hair, smoke</b>, 2022</figcaption></figure>
+        <figure class="sw" data-r="0.673" data-status="Available" data-lb  data-title="Orange hair" data-year="2019" data-size="50 × 70 cm" data-tech="Oil on canvas, palette knife" data-series="Facets, series 1" data-desc="A woman made of warm and cold colour at once, held together by a single dark-blue contour."><button class="zoom" type="button" aria-label="Open Orange hair"><img src="assets/bright/20107012_10213719663091677_211917101_o.jpg" alt="A nude woman with flowing orange hair, outlined in dark blue"></button><figcaption><b>Orange hair</b>, 2019</figcaption></figure>
       </div>
       </div>
     </div>
@@ -491,9 +512,9 @@ a:hover .arrow{transform:translateX(6px)}
   </section>
 
   <!-- 6. FOR SALE: a poster word opens the block; description left, paintings right -->
-  <section class="forsale" id="available-title" aria-label="Available paintings">
-    <div class="forsale__photo"><img src="assets/artist/artist_from_behind_web.jpg" alt="Alona seen from behind in her studio, palette knife raised, facing a large canvas"></div>
-    <h2 class="namefx__title forsale__title"><span class="namefx__row">Available</span><span class="namefx__row">paintings</span></h2>
+  <section class="forsale" id="available-title" aria-label="Available artworks">
+    <div class="forsale__photo"><img src="assets/artist/artist_03.jpg" alt="Alona seen from behind in her studio, arms open, a palette knife in one hand, facing a large blank canvas"></div>
+    <h2 class="namefx__title forsale__title"><span class="namefx__row">Available</span><span class="namefx__row">artworks</span></h2>
   </section>
   <section class="sale" id="available">
     <aside class="sale__aside">
@@ -534,19 +555,20 @@ a:hover .arrow{transform:translateX(6px)}
     <p class="statement__text">
       <span class="statement__line"><span class="li">“Every <span class="inl"><img src="assets/trenners/21430052_10214316308607442_4985684807111658116_n.jpg" alt=""></span> painting</span></span>
       <span class="statement__line"><span class="li">starts with a mess <span class="inl"><img src="assets/trenners/653702699_10242327332105523_6659129308787401272_n.jpg" alt=""></span></span></span>
-      <span class="statement__line"><span class="li">and ends <span class="inl" data-grow><img src="assets/trenners/walking_in_a_gallery_web.jpg" alt=""></span> with a show.”</span></span>
+      <span class="statement__line"><span class="li">and ends <span class="inl" data-grow><video src="assets/video_expositions_web.mp4" poster="assets/video_expositions_poster.jpg" muted loop playsinline preload="metadata" data-autoplay></video></span> with a show.”</span></span>
     </p>
-    <!-- the exhibitions photo: walking_in_a_gallery_web.jpg is a lighter copy of walking_in_a_gallery.jpg -->
+    <!-- the exhibitions film grows from the last line to the whole screen; then the title slides in over it and stays -->
     <div class="statement__media">
-      <img src="assets/trenners/walking_in_a_gallery_web.jpg" alt="A visitor walking through a gallery hung with large paintings">
+      <video src="assets/video_expositions_web.mp4" poster="assets/video_expositions_poster.jpg" muted loop playsinline preload="metadata" data-autoplay aria-label="A visitor walking through a gallery hung with large paintings"></video>
     </div>
+    <h2 class="namefx__title reel__title" aria-label="Where the work has been"><span class="namefx__row">Where the work</span><span class="namefx__row">has been</span></h2>
   </section>
 
   <!-- 8. EXHIBITIONS & AWARDS -->
   <section class="shows" id="exhibitions">
     <div class="eyebrow"><span>05 exhibitions and awards</span><span></span></div>
     <div class="shows__grid">
-      <h2 class="section-title">Where the work<br>has been</h2>
+      <h2 class="section-title">Shown<br>and seen</h2>
       <div class="shows__lists">
         <div>
           <h3 class="shows__h">Exhibitions</h3>
@@ -569,12 +591,11 @@ a:hover .arrow{transform:translateX(6px)}
   <section class="commission" id="order">
     <div class="eyebrow"><span>06 order</span><span>Buy or commission</span></div>
     <div class="commission__stage">
-      <figure class="commission__photo"><img src="assets/artist/me_in_studio.png" alt="Alona Kalko in her studio"></figure>
-      <figure class="cfloat cf-1" data-float="1.6"><img src="assets/bright/20891515_1618815991525286_1376476400_n.jpg" alt=""></figure>
-      <figure class="cfloat cf-2" data-float="2.4"><img src="assets/silv_gold/FB_IMG_1551437054649.jpg" alt=""></figure>
-      <figure class="cfloat cf-3" data-float="1.1"><img src="assets/silv_gold/20030817_1575951042478448_587287737_n.jpg" alt=""></figure>
-      <figure class="cfloat cf-4" data-float="2"><img src="assets/bright/20891642_1618816044858614_797838325_n.jpg" alt=""></figure>
-      <figure class="cfloat cf-5" data-float="2.8"><img src="assets/trenners/653698149_10242327331425506_1684644142551790081_n.jpg" alt=""></figure>
+      <div class="commission__scribble" aria-hidden="true"><svg viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <figure class="cfloat cf-1" data-float="1.6"><img src="assets/trenners/653706044_horizontal.jpg" alt=""></figure>
+      <figure class="cfloat cf-2" data-float="2.4"><img src="assets/trenners/653697067_10242327335865617_2389783376486564063_n.jpg" alt=""></figure>
+      <figure class="cfloat cf-3" data-float="1.1"><img src="assets/trenners/653702688_10242327334945594_1339480099509882014_n.jpg" alt=""></figure>
+      <figure class="cfloat cf-4" data-float="2"><img src="assets/trenners/653002621_10242327332065522_8681625089766190217_n.jpg" alt=""></figure>
       <h2 class="commission__title"><span class="commission__row">Let us paint</span><span class="commission__row">your own story</span></h2>
     </div>
     <div class="commission__body">
@@ -804,6 +825,7 @@ a:hover .arrow{transform:translateX(6px)}
   Promise.race([decoded, new Promise(r => setTimeout(r, 4000))]).then(() => {
     if (document.fonts) return document.fonts.ready;   // refresh once, before the intro starts, never during it
   }).then(() => {
+    ScrollTrigger.sort();   // created out of page order (pinned blocks above them were made later); refresh top to bottom
     ScrollTrigger.refresh();
     if (reduce || !lenis) { window.scrollTo(0, introEnd()); return; }
     if (window.scrollY < introEnd() - 2) lenis.scrollTo(introEnd(), { duration: 8, easing: t => t });
@@ -818,7 +840,7 @@ a:hover .arrow{transform:translateX(6px)}
     gsap.fromTo(el, { width: 0 }, { width: '1.9em', ease: 'none',
       scrollTrigger: { trigger: el, start: 'top 95%', end: 'top 55%', scrub: true } });
   });
-  function growToScreen(sec) {
+  function growToScreen(sec, more) {
     const media = sec.querySelector('.statement__media');
     const inl = sec.querySelector('[data-grow]');
     const rect = () => {
@@ -832,16 +854,17 @@ a:hover .arrow{transform:translateX(6px)}
     };
     // the final frame: the whole screen
     const frame = () => ({ left: 0, top: 0, width: sec.clientWidth, height: innerHeight });   // edge to edge, the whole screen
-    // the quote is held for a while (a few turns of the wheel) before the painting starts to grow
-    const AT = 0.9;
-    gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: '+=260%', scrub: 0.6, pin: true, invalidateOnRefresh: true } })
+    // the quote is held for a moment (a turn or two of the wheel) before the painting starts to grow
+    const AT = 0.35;
+    const tl = gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top top', end: more ? '+=300%' : '+=195%', scrub: 0.6, pin: true, invalidateOnRefresh: true } })
       .set(media, { autoAlpha: 1 }, AT)
       .set(inl, { visibility: 'hidden' }, AT)
       .fromTo(media,
         { left: () => rect().left, top: () => rect().top, width: () => rect().width, height: () => rect().height },
         { left: () => frame().left, top: () => frame().top, width: () => frame().width, height: () => frame().height, ease: 'power2.inOut', duration: 1, immediateRender: false }, AT)
-      .fromTo(media.firstElementChild, { scale: 1.15 }, { scale: 1, ease: 'none', duration: 1, immediateRender: false }, AT)
-      .to({}, { duration: 0.3 });
+      .fromTo(media.firstElementChild, { scale: 1.15 }, { scale: 1, ease: 'none', duration: 1, immediateRender: false }, AT);
+    if (more) more(tl, AT + 1);
+    tl.to({}, { duration: 0.3 });
   }
   growToScreen(document.querySelector('.statement'));
 
@@ -865,40 +888,49 @@ a:hover .arrow{transform:translateX(6px)}
   // Each group: the title sits in the middle of the screen and nothing ever covers it.
   // Paintings go in the band above the title, the band below it, or the column to its right.
   // slot = [zone, x-range, x-anchor, y-anchor, size]
+  // Each group sits on a 12-column grid laid over the free area right of the side column.
+  // A painting takes [first column, last column, row, alignment]:
+  //   rows: 'top' hangs from the top line, 'bot' stands on the bottom line, 'mid' and 'full' are centred;
+  //   alignment: 'l' / 'r' / 'c' inside its columns.
+  // Cells never overlap, so the paintings never touch; the poster title runs over them, as on a poster.
   const LAYOUTS = {
-    2: [['R', null, 0.5, 0.5, 1], ['B', 'left', 0.2, 0, 1]],
-    3: [['T', 'left', 0.12, 1, 1], ['R', null, 0.5, 0.5, 1], ['B', 'left', 0.62, 0, 0.92]],
-    4: [['R', null, 0.5, 0.5, 1], ['T', 'left', 0.25, 1, 1], ['B', 'l1', 1, 0, 1], ['B', 'l2', 0, 0, 0.82]],
+    3: [[0, 5, 'top', 'l'], [7, 11, 'full', 'r'], [0, 5, 'bot', 'r']],                         // a stepped pair in one column block, the big one beside it
+    4: [[7, 11, 'full', 'r'], [0, 3, 'top', 'l'], [4, 6, 'mid', 'c'], [0, 3, 'bot', 'r']],
   };
+  const ROWS = { top: [0, 0.45], bot: [0.55, 1], mid: [0.22, 0.78], full: [0, 1] };   // a clear band between the top and bottom rows
   function layoutStage(stage) {
     if (innerWidth < 861) return;
     const scene = stage.querySelector('.stage__scene'), sr = scene.getBoundingClientRect();
     const W = scene.clientWidth, H = scene.clientHeight;
-    const pad = Math.min(Math.max(innerWidth * 0.04, 24), 64), gap = 32, cap = 24;
+    const pad = Math.min(Math.max(innerWidth * 0.04, 24), 64), g = 24;
     const side = stage.querySelector('.stage__side').getBoundingClientRect();
-    const minX = side.right - sr.left + 56, maxX = W - pad, mid = (minX + maxX) / 2;
-    stage.querySelectorAll('.stage__group').forEach((g, gi) => {
-      const t = stage.querySelector('.stage__title');
-      // the poster-size title is allowed to run over the paintings (like the name over the photo),
-      // so the layout only keeps a modest band clear in the middle
-      // band kept clear = the letters themselves (about .78 of the font size), so no caption ever sits under a letter
-      const tw = Math.min(t.offsetWidth, W * 0.3), th = parseFloat(getComputedStyle(t).fontSize) * 0.78;
-      const tR = W / 2 + tw / 2, tT = H / 2 - th / 2, tB = H / 2 + th / 2;
+    const X0 = side.right - sr.left + 56, AW = W - pad - X0;   // the free area
+    const colW = (AW - 11 * g) / 12, colX = i => X0 + i * (colW + g);
+    stage.querySelectorAll('.stage__group').forEach((grp, gi) => {
       const flip = gi % 2 === 1;   // every other group mirrors, so no two groups look the same
-      const lm = (minX + tR) / 2;
-      const X = { all: [minX, maxX], left: [minX, tR], h1: [minX, mid - gap / 2], h2: [mid + gap / 2, maxX], l1: [minX, lm - gap / 2], l2: [lm + gap / 2, tR] };
-      g.querySelectorAll('.sw').forEach((f, k) => {
-        const [zone, xr, axRaw, ay, size] = LAYOUTS[g.dataset.layout][k];
+      grp.querySelectorAll('.sw').forEach((f, k) => {
+        let [c0, c1, row, al] = LAYOUTS[grp.dataset.layout][k];
+        if (flip) { [c0, c1] = [11 - c1, 11 - c0]; al = al === 'l' ? 'r' : al === 'r' ? 'l' : al; }
+        // cells next to another cell step back by half the gap on that side, so neighbours always have real air between them
+        const GAP = Math.min(Math.max(innerWidth * 0.04, 48), 80);
+        const zx0 = colX(c0) + (c0 > 0 ? GAP / 2 : 0), zx1 = colX(c1) + colW - (c1 < 11 ? GAP / 2 : 0);
+        const zy0 = ROWS[row][0] * H, zy1 = ROWS[row][1] * H;
         const r = parseFloat(f.dataset.r);
-        let x0, x1, y0, y1, ax = flip && zone !== 'R' ? 1 - axRaw : axRaw;
-        if (zone === 'T') { [x0, x1] = X[xr]; y0 = 0; y1 = tT - gap; }
-        if (zone === 'B') { [x0, x1] = X[xr]; y0 = tB + gap; y1 = H; }
-        if (zone === 'R') { x0 = tR + gap * 1.5; x1 = maxX; y0 = H * 0.04; y1 = H * 0.96; }   // the big one: almost the full height
-        const SCALE = zone !== 'R' ? 1 : innerWidth < 1280 ? 0.76 : 0.86;   // the big one gets a little more air, more so on smaller screens
-        let h = ((y1 - y0) * size - cap) * SCALE, w = h * r;
-        if (w > x1 - x0) { w = x1 - x0; h = w / r; }
-        const left = x0 + (x1 - x0 - w) * ax, top = y0 + (y1 - y0 - h - cap) * ay;
-        Object.assign(f.style, { left: left + 'px', top: top + 'px', width: w + 'px', height: (h + cap) + 'px' });
+        let h = zy1 - zy0, w = h * r;
+        if (w > zx1 - zx0) { w = zx1 - zx0; h = w / r; }
+        const left = al === 'l' ? zx0 : al === 'r' ? zx1 - w : (zx0 + zx1 - w) / 2;
+        const top = row === 'top' ? zy0 : row === 'bot' ? zy1 - h : (zy0 + zy1 - h) / 2;
+        Object.assign(f.style, { left: left + 'px', top: top + 'px', width: w + 'px', height: h + 'px' });
+        // it grows from its anchored corner or edge, and only as far as its own cell allows
+        const ox = al === 'l' ? 0 : al === 'r' ? 1 : 0.5, oy = row === 'top' ? 0 : row === 'bot' ? 1 : 0.5;
+        f.style.transformOrigin = `${ox * 100}% ${oy * 100}%`;
+        const lim = (lo, hi, p0, size, o) => {   // largest scale that keeps [p0, p0 + size] inside [lo, hi]
+          const op = o * size; let m = 9;
+          if (op > 0) m = Math.min(m, 1 + (p0 - lo) / op);
+          if (size - op > 0) m = Math.min(m, (hi - p0 - op) / (size - op));
+          return m;
+        };
+        f.dataset.smax = Math.max(1, Math.min(lim(zx0, zx1, left, w, ox), lim(zy0, zy1, top, h, oy))).toFixed(3);
       });
     });
   }
@@ -931,8 +963,8 @@ a:hover .arrow{transform:translateX(6px)}
       tl.to({}, { duration: HOLD })
         .to(track, { x: () => -(G - 1) * scene.clientWidth, ease: 'none', duration: G - 1 })
         .to({}, { duration: HOLD });
-      // while the paintings travel (either way), the ones passing the middle of the screen grow,
-      // the small ones the most (up to 2.4x), and shrink back to their size as their group settles
+      // while the paintings travel (either way), the ones passing the middle of the screen grow a little
+      // (as far as their own cell allows) and settle back to their size as their group comes to rest
       const breathe = () => {
         const u = Math.min(G - 1, Math.max(0, tl.time() - HOLD));
         const move = Math.sin(Math.PI * (u - Math.floor(u)));   // 0 while a group rests, 1 halfway between two groups
@@ -941,7 +973,7 @@ a:hover .arrow{transform:translateX(6px)}
           const r = f.getBoundingClientRect();
           let s = 1;
           if (move > 0.001 && r.right > -200 && r.left < innerWidth + 200) {
-            const peak = Math.max(1, Math.min(2.4, (scene.clientHeight * 0.94) / (f.offsetHeight || 1)));
+            const peak = Math.min(1.3, parseFloat(f.dataset.smax) || 1);   // never past its own cell: no cut tops, no overlaps
             const near = Math.max(0, 1 - Math.abs(r.left + r.width / 2 - mid) / (innerWidth * 0.5));
             s = 1 + (peak - 1) * near * near * (3 - 2 * near) * move;
           }
@@ -1003,16 +1035,14 @@ a:hover .arrow{transform:translateX(6px)}
     const ph = fs.querySelector('.forsale__photo'), phImg = ph.querySelector('img'), rows = fs.querySelectorAll('.namefx__row');
     gsap.set(ph, { xPercent: -50, yPercent: -50, x: 0, y: 0 });
     const saleOff = i => Math.max(0, Math.min(innerWidth * 0.28, (innerWidth - 2 * pageMargin() - textW(rows[i])) / 2));
-    gsap.timeline({ scrollTrigger: { trigger: fs, start: 'top top', end: '+=420%', scrub: 1.2, pin: true, invalidateOnRefresh: true } })
+    gsap.timeline({ scrollTrigger: { trigger: fs, start: 'top top', end: '+=240%', scrub: 1.2, pin: true, invalidateOnRefresh: true } })
       .fromTo(ph, { y: () => innerHeight * 0.45, clipPath: 'inset(50% 0% 50% 0%)' }, { y: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'power3.out' }, 0)
       .fromTo(phImg, { scale: 1.3 }, { scale: 1, duration: 1.8, ease: 'power2.out' }, 0)
       .set('.forsale__title', { visibility: 'visible' }, 1.3)
       // the rows settle a little apart, but never further than the page margins allow
       .fromTo(rows[0], { xPercent: -100, x: 0 }, { xPercent: 0, x: () => -saleOff(0), ease: 'power3.out', duration: 1 }, 1.35)
       .fromTo(rows[1], { xPercent: 100, x: 0 }, { xPercent: 0, x: () => saleOff(1), ease: 'power3.out', duration: 1 }, 1.35)
-      .to(rows[0], { xPercent: -110, ease: 'power2.in', duration: 0.8 }, 3.6)
-      .to(rows[1], { xPercent: 110, ease: 'power2.in', duration: 0.8 }, 3.6)
-      .to({}, { duration: 0.5 });
+      .to({}, { duration: 0.6 });   // the title stays; once it has settled, the block simply scrolls on with it
   }
 
   /* ── Section labels: the rule draws itself from the left, then the words rise into place ── */
@@ -1061,8 +1091,18 @@ a:hover .arrow{transform:translateX(6px)}
   saleItems.forEach((el, i) => ScrollTrigger.create({ trigger: el, start: 'top 60%', end: 'bottom 60%',
     onToggle: s => { if (s.isActive && i !== saleActive) { saleActive = i; showSale(i, true); } } }));
 
-  /* ── 7. Exhibitions film ── */
-  growToScreen(document.querySelector('.reel'));
+  /* ── 7. “Every painting…”: the film grows to the whole screen, then the title slides in like the name and stays ── */
+  const reelTitle = document.querySelector('.reel__title');
+  const fitReel = () => fitTitle(reelTitle, () => innerWidth - 2 * pageMargin());
+  fitReel(); ScrollTrigger.addEventListener('refreshInit', fitReel);
+  growToScreen(document.querySelector('.reel'), (tl, at) => {
+    const rows = reelTitle.querySelectorAll('.namefx__row');
+    const off = i => Math.max(0, Math.min(innerWidth * 0.28, (innerWidth - 2 * pageMargin() - textW(rows[i])) / 2));
+    tl.set(reelTitle, { visibility: 'visible' }, at + 0.05)
+      .fromTo(rows[0], { xPercent: -100, x: 0 }, { xPercent: 0, x: () => -off(0), ease: 'power3.out', duration: 1 }, at + 0.1)
+      .fromTo(rows[1], { xPercent: 100, x: 0 }, { xPercent: 0, x: () => off(1), ease: 'power3.out', duration: 1 }, at + 0.1)
+      .to({}, { duration: 0.4 });   // it stays; the block then scrolls on with it
+  });
 
   /* ── 9. Commissions: black-and-white photo still, colour moving around it ── */
   const stage = '.commission__stage';
@@ -1184,6 +1224,173 @@ a:hover .arrow{transform:translateX(6px)}
       });
     });
   }
+
+
+  /* ── Cursor: the dot sits exactly under the pointer; the ring trails it softly,
+        opens up over anything you can click and tightens when you press ── */
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const dot = document.createElement('div'), ring = document.createElement('div');
+    dot.className = 'cur cur--dot'; ring.className = 'cur cur--ring';
+    dot.setAttribute('aria-hidden', 'true'); ring.setAttribute('aria-hidden', 'true');
+    document.body.append(ring, dot);
+    document.documentElement.classList.add('has-cur');
+    const p = { x: innerWidth / 2, y: innerHeight / 2 }, r = { x: p.x, y: p.y, s: 1, d: 1 };
+    let hot = false, down = false;
+    const HOT = 'a, button, [data-lb], .shows__list li, label, summary';
+    addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      p.x = e.clientX; p.y = e.clientY;
+      hot = !!(e.target.closest && e.target.closest(HOT));
+      dot.classList.add('is-on'); ring.classList.add('is-on');
+    }, { passive: true });
+    addEventListener('pointerdown', () => { down = true; });
+    addEventListener('pointerup', () => { down = false; });
+    document.addEventListener('pointerleave', () => { dot.classList.remove('is-on'); ring.classList.remove('is-on'); });
+    const follow = reduce ? 1 : 0.14;   // how quickly the ring catches up: small = longer, softer trail
+    gsap.ticker.add(() => {
+      r.x += (p.x - r.x) * follow; r.y += (p.y - r.y) * follow;
+      r.s += ((hot ? 1.8 : 1) * (down ? 0.8 : 1) - r.s) * 0.16;   // the ring opens over clickable things
+      r.d += ((hot ? 0 : 1) - r.d) * 0.25;                         // and the dot hides inside it
+      ring.style.transform = `translate(${r.x}px, ${r.y}px) scale(${r.s})`;
+      dot.style.transform = `translate(${p.x}px, ${p.y}px) scale(${r.d})`;
+    });
+  }
+
+
+  /* ── Order: the scribble. Ink lines drawn in code; they draw themselves in as you arrive,
+        lean softly towards the cursor, and the cursor itself leaves a thin line that slowly fades ── */
+  (() => {
+    const box = document.querySelector('.commission__scribble');
+    if (!box) return;
+    const svg = box.querySelector('svg'), NS = 'http://www.w3.org/2000/svg';
+    const VW = 1000, VH = 620, CX = 500, CY = 310;
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };   // the same drawing every time
+    const gauss = () => (rnd() + rnd() + rnd() - 1.5) / 1.5;                                       // mostly near the middle
+    // smooth line through points (Catmull-Rom as cubic Béziers)
+    const smooth = P => {
+      let d = `M${P[0].x.toFixed(1)} ${P[0].y.toFixed(1)}`;
+      for (let i = 0; i < P.length - 1; i++) {
+        const a = P[i - 1] || P[i], b = P[i], c = P[i + 1], e = P[i + 2] || c;
+        d += `C${(b.x + (c.x - a.x) / 6).toFixed(1)} ${(b.y + (c.y - a.y) / 6).toFixed(1)} ${(c.x - (e.x - b.x) / 6).toFixed(1)} ${(c.y - (e.y - b.y) / 6).toFixed(1)} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`;
+      }
+      return d;
+    };
+    // the lines, like a hand scribbling: thin loops round the middle, long light sweeps out to the sides,
+    // and a few dark sharp flicks across it all
+    const lines = [];
+    const kinds = ['loop', 'sweep', 'loop', 'flick', 'loop', 'sweep', 'flick'];   // just a start: the rest is for the visitor to draw
+    kinds.forEach(kind => {
+      const P = [];
+      let ang = rnd() * Math.PI * 2;
+      if (kind === 'flick') {
+        const n = 3 + Math.floor(rnd() * 2), a0 = rnd() * Math.PI, len = 160 + rnd() * 200;
+        for (let i = 0; i < n; i++) {
+          const t = i / (n - 1) - 0.5;
+          P.push({ x: CX + gauss() * 70 + Math.cos(a0) * len * t * 2 + gauss() * 30, y: CY + gauss() * 50 + Math.sin(a0) * len * t * 1.2 + gauss() * 30 });
+        }
+      } else {
+        const sweep = kind === 'sweep', n = sweep ? 5 + Math.floor(rnd() * 3) : 8 + Math.floor(rnd() * 4);
+        for (let i = 0; i < n; i++) {
+          ang += sweep ? 2 + rnd() * 1.4 : 1.4 + rnd() * 1.5;   // keeps turning, so it loops
+          const rx = sweep ? 280 + rnd() * 200 : 90 + rnd() * 170, ry = sweep ? 30 + rnd() * 90 : 50 + rnd() * 100;
+          P.push({ x: CX + gauss() * 50 + Math.cos(ang) * rx, y: CY + gauss() * 30 + Math.sin(ang) * ry });
+        }
+      }
+      const el = document.createElementNS(NS, 'path');
+      const w = kind === 'flick' ? 1.6 + rnd() * 1.2 : kind === 'sweep' ? 0.5 + rnd() * 0.3 : 0.6 + rnd() * 0.5;
+      const o = kind === 'flick' ? 0.9 : kind === 'sweep' ? 0.35 + rnd() * 0.25 : 0.35 + rnd() * 0.4;
+      el.setAttribute('stroke-width', w.toFixed(2));
+      el.setAttribute('opacity', o.toFixed(2));
+      el.setAttribute('pathLength', '1');
+      svg.appendChild(el);
+      lines.push({ el, P, Q: P.map(p => ({ x: p.x, y: p.y })) });   // P = where the point belongs, Q = where it is now
+    });
+    // ink spatters
+    const dots = [];
+    for (let k = 0; k < 18; k++) {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', (CX + gauss() * 200).toFixed(1)); c.setAttribute('cy', (CY + gauss() * 130).toFixed(1));
+      c.setAttribute('r', (0.5 + Math.pow(rnd(), 4) * 3).toFixed(2));
+      svg.appendChild(c); dots.push(c);
+    }
+    lines.forEach(l => l.el.setAttribute('d', smooth(l.Q)));
+
+    // drawing itself in, as the section arrives
+    if (!reduce) {
+      lines.forEach(l => { l.el.style.strokeDasharray = 1; l.el.style.strokeDashoffset = 1; });
+      gsap.set(dots, { opacity: 0 });
+      gsap.timeline({ scrollTrigger: { trigger: '.commission__stage', start: 'top 85%', end: 'center 55%', scrub: 0.8 } })
+        .to(lines.map(l => l.el), { strokeDashoffset: 0, ease: 'power1.inOut', duration: 1, stagger: 0.04 }, 0)
+        .to(dots, { opacity: 1, duration: 0.3, stagger: 0.004 }, 0.6);
+    }
+
+    // with a mouse: the lines lean towards the cursor, and the cursor draws
+    if (reduce || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const stageEl = document.querySelector('.commission__stage');
+    const pen = { x: 0, y: 0, tx: 0, ty: 0, on: false, last: 0 };
+    let cur = null;          // the line being drawn now
+    const trails = [];       // finished lines, fading
+    const toSvg = e => {
+      const m = svg.getScreenCTM();
+      if (!m) return null;
+      const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      return pt.matrixTransform(m.inverse());
+    };
+    stageEl.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      const q = toSvg(e); if (!q) return;
+      pen.tx = q.x; pen.ty = q.y; pen.last = performance.now();
+      if (!pen.on) { pen.on = true; pen.x = q.x; pen.y = q.y; }
+    });
+    stageEl.addEventListener('pointerleave', () => { pen.on = false; });
+    const endLine = () => { if (cur) { trails.push({ el: cur.el, life: 1 }); cur = null; } };
+    let visible = false;
+    ScrollTrigger.create({ trigger: stageEl, start: 'top bottom', end: 'bottom top', onToggle: s => { visible = s.isActive; } });
+    gsap.ticker.add(() => {
+      if (!visible) return;
+      const now = performance.now();
+      const moving = pen.on && now - pen.last < 350;
+      // 1. the lines lean towards the pen, the nearer the more, and spring back when it leaves
+      const R = 230;
+      lines.forEach(l => {
+        let changed = false;
+        l.P.forEach((p, i) => {
+          let tx = p.x, ty = p.y;
+          if (pen.on) {
+            const dx = pen.x - p.x, dy = pen.y - p.y, d = Math.hypot(dx, dy);
+            if (d < R) { const f = Math.pow(1 - d / R, 2) * 0.32; tx += dx * f; ty += dy * f; }
+          }
+          const q = l.Q[i], nx = q.x + (tx - q.x) * 0.07, ny = q.y + (ty - q.y) * 0.07;
+          if (Math.abs(nx - q.x) > 0.02 || Math.abs(ny - q.y) > 0.02) { q.x = nx; q.y = ny; changed = true; }
+        });
+        if (changed) l.el.setAttribute('d', smooth(l.Q));
+      });
+      // 2. the pen: its tip follows the cursor loosely, so the line comes out round and hand-made
+      if (pen.on) { pen.x += (pen.tx - pen.x) * 0.2; pen.y += (pen.ty - pen.y) * 0.2; }
+      if (moving) {
+        if (!cur) {
+          const el = document.createElementNS(NS, 'path');
+          el.setAttribute('stroke-width', '1.1'); el.setAttribute('opacity', '0.8');
+          svg.appendChild(el); cur = { el, P: [{ x: pen.x, y: pen.y }] };
+        }
+        const L = cur.P[cur.P.length - 1];
+        if (Math.hypot(pen.x - L.x, pen.y - L.y) > 6) {
+          cur.P.push({ x: pen.x, y: pen.y });
+          if (cur.P.length > 400) cur.P.shift();
+          cur.el.setAttribute('d', smooth(cur.P));
+        }
+      } else endLine();
+      // 3. what the pen drew stays a good while, then slowly fades away
+      for (let i = trails.length - 1; i >= 0; i--) {
+        const t = trails[i];
+        t.life -= 0.0007;   // what the visitor drew stays for about half a minute
+        t.el.setAttribute('opacity', (Math.max(0, Math.min(1, t.life * 2)) * 0.8).toFixed(3));
+        if (t.life <= 0) { t.el.remove(); trails.splice(i, 1); }
+      }
+      while (trails.length > 30) trails.shift().el.remove();
+    });
+  })();
 
 })();
 </script>
