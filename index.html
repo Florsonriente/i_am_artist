@@ -89,7 +89,7 @@ button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor
 .trail{position:absolute; inset:0; pointer-events:none}
 .trail__item{position:absolute; left:50%; top:50%; width:var(--t, 104px); margin:0; will-change:transform}
 .trail__item img{width:100%; aspect-ratio:1/1; object-fit:cover; object-position:50% 0}   /* square, cropped from the top so the top of each painting shows */
-.trail__item figcaption{position:absolute; left:0; right:0; bottom:100%; padding-bottom:var(--s1); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:var(--t-cap); line-height:1.2}
+.trail__item figcaption{display:none;   /* the squares carry no captions: nothing above them */ position:absolute; left:0; right:0; bottom:100%; padding-bottom:var(--s1); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:var(--t-cap); line-height:1.2}
 .trail__item figcaption span{color:var(--ink-2)}
 .js .trail__item figcaption{opacity:0}
 .js .hero__line,.js .hero .hero__name{visibility:hidden}
@@ -143,6 +143,12 @@ button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor
 html.has-cur .cur.is-on{opacity:1}
 html.has-cur, html.has-cur *{cursor:none !important}
 html.has-cur input, html.has-cur textarea, html.has-cur select{cursor:text !important}
+/* the address, shown only after a click on Make a request / Write to me */
+.mailnote{position:fixed; left:50%; bottom:calc(var(--s4) + env(safe-area-inset-bottom, 0px)); z-index:150; display:flex; align-items:center; gap:var(--s3); padding:var(--s2) var(--s3); background:var(--ink); color:var(--paper); font-size:var(--t-body); transform:translate(-50%, 140%); opacity:0; transition:transform .6s cubic-bezier(.19,1,.22,1), opacity .4s}
+.mailnote.is-on{transform:translate(-50%, 0); opacity:1}
+.mailnote__a{user-select:all; white-space:nowrap}
+.mailnote__copy{color:var(--paper); border-bottom:1px solid rgba(245,242,236,.5); padding-bottom:1px}
+.mailnote__x{color:var(--paper); font-size:20px; line-height:1; opacity:.6}
 .lb{position:fixed; inset:0; z-index:100; display:grid; grid-template-columns:7fr 3fr; background:var(--paper)}
 .lb[hidden]{display:none}
 .lb--view{grid-template-columns:1fr}
@@ -315,6 +321,22 @@ a:hover .arrow{transform:translateX(6px)}
 .sale__info > *,.btn--block{flex-shrink:0}
 .offer__more{align-self:flex-start}
 .offer__note{grid-column:2; margin:0; font-size:var(--t-cap); color:var(--ink-2)}
+/* the five things we agree on */
+/* how a commission happens: five steps in a row, each drawn as if with a pen, one hand-drawn line beneath them */
+.process{position:relative; margin-bottom:var(--s15)}
+.process__head{display:grid; grid-template-columns:5fr 7fr; column-gap:var(--s3); align-items:end; margin-bottom:var(--s8)}
+.process__head p{margin:0; max-width:26rem; color:var(--ink-2)}
+.process__draw{position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none}
+.process__draw path{fill:none; stroke:var(--ink); stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round}
+.process__steps{list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(5, 1fr); column-gap:var(--s3)}
+.proc__art{aspect-ratio:200/140; margin-bottom:var(--s10)}
+.proc__art svg{display:block; width:100%; height:100%; overflow:visible}
+.proc__art path{fill:none; stroke-linecap:round; stroke-linejoin:round}
+.proc__n{display:block; font-size:var(--t-cap); color:var(--ink-2); margin-bottom:var(--s1)}
+.proc h4{margin:0 0 var(--s1); font-family:var(--serif); font-weight:300; font-size:var(--t-h3); line-height:1.2}
+.proc p{margin:0; font-size:var(--t-cap); line-height:1.6; color:var(--ink-2)}
+.offer__col--pay{justify-content:flex-start; gap:var(--s3)}   /* price and button right next to the title, under the same line */
+.offer__col--pay .offer__specs{margin:0}
 
 /* ───────── 6. About ───────── */
 .about{position:relative; display:flex; align-items:center; min-height:170vh; padding:var(--section) var(--margin)}
@@ -375,6 +397,11 @@ a:hover .arrow{transform:translateX(6px)}
   .offer{grid-template-columns:1fr}
   .sale__info .btn--block{width:100%}
   .offer__note{grid-column:auto}
+  .offer__col--pay{margin-top:var(--s6)}
+  .process__head{grid-template-columns:1fr; row-gap:var(--s3)}
+  .process__steps{grid-template-columns:1fr; row-gap:var(--s6)}
+  .proc{display:grid; grid-template-columns:40% 1fr; column-gap:var(--s3); align-items:start}
+  .proc__art{margin-bottom:0}
 }
 </style>
 </head>
@@ -490,6 +517,7 @@ a:hover .arrow{transform:translateX(6px)}
       <ol class="stage__index">
         <li><button type="button" data-go="0"><span class="arrow" aria-hidden="true">→</span>Gold</button></li>
         <li><button type="button" data-go="1"><span class="arrow" aria-hidden="true">→</span>Silver</button></li>
+        <li><button type="button" data-go="2"><span class="arrow" aria-hidden="true">→</span>Quiet</button></li>
       </ol>
       <p class="stage__note">Tap a painting to read its story.</p>
     </aside>
@@ -501,11 +529,13 @@ a:hover .arrow{transform:translateX(6px)}
         <figure class="sw" data-r="1.157" data-status="Sold" data-lb  data-title="Dandelions" data-year="2019" data-size="100 × 80 cm" data-tech="Oil on canvas, gold ground" data-series="Gilded, series 2" data-desc="A girl, a white dog and the second just before the wish is blown away."><button class="zoom" type="button" aria-label="Open Dandelions"><img src="assets/silv_gold/34181395_10216609453894641_4362328467853803520_n.jpg" alt="A girl blowing dandelions next to a white dog on a gold ground"></button><figcaption><b>Dandelions</b>, 2019</figcaption></figure>
         <figure class="sw" data-r="0.909" data-status="Sold" data-lb  data-title="Rabbit" data-year="2019" data-size="80 × 100 cm" data-tech="Oil on canvas, gold ground" data-series="Gilded, series 2" data-desc="A girl and a rabbit in a long embrace on warm gold."><button class="zoom" type="button" aria-label="Open Rabbit"><img src="assets/silv_gold/IMG_20190122_165407_538.jpg" alt="A girl hugging a large rabbit on a gold ground"></button><figcaption><b>Rabbit</b>, 2019</figcaption></figure>
       </div>
-      <div class="stage__group" style="--gi:1" data-layout="4">
-        <figure class="sw" data-r="0.806" data-status="Sold" data-lb  data-title="Kid with a cat" data-year="2018" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="A child and a ginger cat holding on to each other, both a little shy, on silver."><button class="zoom" type="button" aria-label="Open Kid with a cat"><img src="assets/silv_gold/20030817_1575951042478448_587287737_n.jpg" alt="A child in blue hugging a ginger cat on a silver ground"></button><figcaption><b>Kid with a cat</b>, 2018</figcaption></figure>
+      <div class="stage__group" style="--gi:1" data-layout="2">
         <figure class="sw" data-r="0.8" data-status="Sold" data-lb  data-title="Winter" data-year="2020" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="Red cheeks, a heavy coat and a ginger cat held close against the cold."><button class="zoom" type="button" aria-label="Open Winter"><img src="assets/silv_gold/FB_IMG_1551437054649.jpg" alt="A child in a winter hat holding a ginger cat on a silver ground"></button><figcaption><b>Winter</b>, 2020</figcaption></figure>
-        <figure class="sw" data-r="0.803" data-status="Sold" data-lb  data-title="Boy with a cat" data-year="2018" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="A grumpy grey kitten and a boy who loves it anyway."><button class="zoom" type="button" aria-label="Open Boy with a cat"><img src="assets/silv_gold/20030896_1575951789145040_2116550349_n.jpg" alt="A boy holding a grumpy grey kitten on a silver ground"></button><figcaption><b>Boy with a cat</b>, 2018</figcaption></figure>
+        <figure class="sw" data-r="0.806" data-status="Sold" data-lb  data-title="Kid with a cat" data-year="2018" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="A child and a ginger cat holding on to each other, both a little shy, on silver."><button class="zoom" type="button" aria-label="Open Kid with a cat"><img src="assets/silv_gold/20030817_1575951042478448_587287737_n.jpg" alt="A child in blue hugging a ginger cat on a silver ground"></button><figcaption><b>Kid with a cat</b>, 2018</figcaption></figure>
+      </div>
+      <div class="stage__group" style="--gi:2" data-layout="2b">
         <figure class="sw" data-r="0.799" data-status="Available on request" data-lb  data-title="Horse" data-year="2019" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="A woman rests her face against a blue horse; the silver keeps the moment quiet."><button class="zoom" type="button" aria-label="Open Horse"><img src="assets/silv_gold/IMG_20190212_111509.jpg" alt="A woman resting her face against a blue horse on a silver ground"></button><figcaption><b>Horse</b>, 2019</figcaption></figure>
+        <figure class="sw" data-r="0.803" data-status="Sold" data-lb  data-title="Boy with a cat" data-year="2018" data-size="80 × 100 cm" data-tech="Oil on canvas, silver ground" data-series="Gilded, series 2" data-desc="A grumpy grey kitten and a boy who loves it anyway."><button class="zoom" type="button" aria-label="Open Boy with a cat"><img src="assets/silv_gold/20030896_1575951789145040_2116550349_n.jpg" alt="A boy holding a grumpy grey kitten on a silver ground"></button><figcaption><b>Boy with a cat</b>, 2018</figcaption></figure>
       </div>
       </div>
     </div>
@@ -530,7 +560,7 @@ a:hover .arrow{transform:translateX(6px)}
             <div><dt>Size</dt><dd id="saleSize"></dd></div>
             <div class="sale__price"><dt>Price</dt><dd id="salePrice"></dd></div>
           </dl>
-          <a class="btn btn--block" href="#order"><span>Buy this painting</span><span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn--block" href="#contact" data-mail="buy"><span>Make a request</span><span class="arrow" aria-hidden="true">→</span></a>
         </div>
       </div>
     </aside>
@@ -589,7 +619,7 @@ a:hover .arrow{transform:translateX(6px)}
 
   <!-- 9. ORDER: buy a painting or commission one -->
   <section class="commission" id="order">
-    <div class="eyebrow"><span>06 order</span><span>Buy or commission</span></div>
+    <div class="eyebrow"><span>06 order</span><span>Commissions</span></div>
     <div class="commission__stage">
       <div class="commission__scribble" aria-hidden="true"><svg viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet"></svg></div>
       <figure class="cfloat cf-1" data-float="1.6"><img src="assets/trenners/653706044_horizontal.jpg" alt=""></figure>
@@ -599,30 +629,21 @@ a:hover .arrow{transform:translateX(6px)}
       <h2 class="commission__title"><span class="commission__row">Let us paint</span><span class="commission__row">your own story</span></h2>
     </div>
     <div class="commission__body">
-      <p class="commission__lead">Take home one of the paintings that are ready, or let me paint something just for you: people, couples, families and the animals they love, in the same thick oil and bright colour.</p>
+      <p class="commission__lead">Let me paint something that is only yours: people, couples, families and the animals they love, in the same thick oil and bright colour as my own series.</p>
       <div class="offer">
         <article class="offer__col">
-          <h3>Buy a painting</h3>
-          <p>Choose one of the paintings for sale. It is packed with care, insured, and comes with a certificate of authenticity.</p>
-          <dl class="offer__specs">
-            <div><dt>Price</dt><dd>from € 1 200</dd></div>
-            <div><dt>Delivery</dt><dd>1–2 weeks</dd></div>
-          </dl>
-          <a class="btn btn--block" href="#checkout-buy"><span>Pay by card</span><span class="arrow" aria-hidden="true">→</span></a>
-          <a class="link-line offer__more" href="#available">See paintings for sale</a>
-        </article>
-        <article class="offer__col">
           <h3>Commission a painting</h3>
-          <p>We agree on the idea, size and timing first. A deposit books your place; the rest is paid when the painting is ready.</p>
+          <p>The price depends on the size of the canvas and on how many people and animals are in your story.</p>
+        </article>
+        <article class="offer__col offer__col--pay">
           <dl class="offer__specs">
             <div><dt>Price</dt><dd>from € 1 500</dd></div>
             <div><dt>Deposit</dt><dd>30%</dd></div>
+            <div><dt>The rest</dt><dd>when the painting is ready</dd></div>
           </dl>
-          <a class="btn btn--block" href="#checkout-commission"><span>Pay deposit by card</span><span class="arrow" aria-hidden="true">→</span></a>
-          <a class="link-line offer__more" href="mailto:hello@example.com">Ask a question first</a>
+          <a class="btn btn--block" href="#contact" data-mail="commission"><span>Make a request</span><span class="arrow" aria-hidden="true">→</span></a>
         </article>
       </div>
-      <!-- card payments: create two Stripe Payment Links and paste them into the two buttons above -->
     </div>
   </section>
 
@@ -631,8 +652,7 @@ a:hover .arrow{transform:translateX(6px)}
     <div class="eyebrow"><span>07 contact</span><span></span></div>
     <h2 class="contact__title">Let’s talk</h2>
     <ul class="contact__list">
-      <li><a href="mailto:hello@example.com"><span class="k">Email</span><span class="v">hello@example.com</span><span class="arrow" aria-hidden="true">→</span></a></li>
-      <li><a href="#" rel="noopener"><span class="k">Instagram</span><span class="v">@yourname</span><span class="arrow" aria-hidden="true">→</span></a></li>
+      <li><a href="#contact" data-mail="hello"><span class="v">Write to me</span><span class="arrow" aria-hidden="true">→</span></a></li>
     </ul>
   </section>
 </main>
@@ -764,11 +784,26 @@ a:hover .arrow{transform:translateX(6px)}
   const setSX = tItems.map(el => gsap.quickSetter(el, 'scaleX'));
   const setSY = tItems.map(el => gsap.quickSetter(el, 'scaleY'));
   const setS = tItems.map((_, i) => v => { setSX[i](v); setSY[i](v); });
+  // the mouse pulls the squares of the grid a little towards itself; they spring back when it moves away
+  const mouse = { x: -9999, y: -9999 }, pull = tItems.map(() => ({ x: 0, y: 0 }));
+  if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+    document.addEventListener('pointerleave', () => { mouse.x = mouse.y = -9999; });
+  }
   function renderHero() {
+    const R = 260, cx = innerWidth / 2, cy = innerHeight / 2;
     for (let i = 0; i < N; i++) {
       const D = dia[i], G = cellOf[i], m = prog[i].m;
-      setX[i]((D.x + (G.x - D.x) * m) * st.spread);
-      setY[i]((D.y + (G.y - D.y) * m) * st.spread - st.lift * innerHeight * 1.25 * liftK[i]);
+      const bx = (D.x + (G.x - D.x) * m) * st.spread, by = (D.y + (G.y - D.y) * m) * st.spread - st.lift * innerHeight * 1.25 * liftK[i];
+      let tx = 0, ty = 0;
+      const on = m * (1 - st.lift);   // only once the grid has formed, and less as it drifts away
+      if (on > 0.01) {
+        const dx = mouse.x - (cx + bx), dy = mouse.y - (cy + by), d = Math.hypot(dx, dy);
+        if (d < R) { const f = Math.pow(1 - d / R, 2) * 0.32 * on; tx = dx * f; ty = dy * f; }
+      }
+      pull[i].x += (tx - pull[i].x) * 0.08; pull[i].y += (ty - pull[i].y) * 0.08;
+      setX[i](bx + pull[i].x);
+      setY[i](by + pull[i].y);
       setS[i](prog[i].a * st.grow);
       tItems[i].style.visibility = prog[i].a > 0.001 ? 'visible' : 'hidden';   // not even a dot before its turn
     }
@@ -885,19 +920,23 @@ a:hover .arrow{transform:translateX(6px)}
   });
 
   /* ── 5. Works: each series is held on screen; scrolling swaps one group of paintings for the next ── */
-  // Each group: the title sits in the middle of the screen and nothing ever covers it.
-  // Paintings go in the band above the title, the band below it, or the column to its right.
-  // slot = [zone, x-range, x-anchor, y-anchor, size]
-  // Each group sits on a 12-column grid laid over the free area right of the side column.
-  // A painting takes [first column, last column, row, alignment]:
-  //   rows: 'top' hangs from the top line, 'bot' stands on the bottom line, 'mid' and 'full' are centred;
-  //   alignment: 'l' / 'r' / 'c' inside its columns.
-  // Cells never overlap, so the paintings never touch; the poster title runs over them, as on a poster.
-  const LAYOUTS = {
-    3: [[0, 5, 'top', 'l'], [7, 11, 'full', 'r'], [0, 5, 'bot', 'r']],                         // a stepped pair in one column block, the big one beside it
-    4: [[7, 11, 'full', 'r'], [0, 3, 'top', 'l'], [4, 6, 'mid', 'c'], [0, 3, 'bot', 'r']],
+  // Each group is one composition on a 12-column grid laid over the free area right of the side column:
+  // one large painting and one or two small ones, always in the same three places, so every screen has
+  // the same rhythm and the same air. A slot: [first column, last column, row, alignment, largest height].
+  //   big: columns 7–12, centred in height, up to 80% of it;
+  //   a:   columns 1–4, hangs from the top line, up to 42%;
+  //   b:   columns 2–5, stands on the bottom line, up to 42%.
+  // Between the small ones and the large one there is always at least one empty column.
+  // Every other group is mirrored, so the large painting changes sides as you scroll.
+  const SLOT = {
+    big: [6, 11, 'mid', 'r', 0.8],
+    a:   [0, 3, 'top', 'l', 0.42],
+    b:   [1, 4, 'bot', 'r', 0.42],
+    a2:  [1, 4, 'top', 'r', 0.5],    // a screen with two paintings: the small one a little larger, in the same column block as b,
+    b2:  [1, 4, 'bot', 'r', 0.5],    // so the distance to the large one is the same as in Facets
   };
-  const ROWS = { top: [0, 0.45], bot: [0.55, 1], mid: [0.22, 0.78], full: [0, 1] };   // a clear band between the top and bottom rows
+  const LAYOUTS = { 3: ['a', 'big', 'b'], 2: ['a2', 'big'], '2b': ['b2', 'big'] };
+  const ROWS = { top: [0, 0.45], bot: [0.55, 1], mid: [0, 1] };
   function layoutStage(stage) {
     if (innerWidth < 861) return;
     const scene = stage.querySelector('.stage__scene'), sr = scene.getBoundingClientRect();
@@ -907,22 +946,20 @@ a:hover .arrow{transform:translateX(6px)}
     const X0 = side.right - sr.left + 56, AW = W - pad - X0;   // the free area
     const colW = (AW - 11 * g) / 12, colX = i => X0 + i * (colW + g);
     stage.querySelectorAll('.stage__group').forEach((grp, gi) => {
-      const flip = gi % 2 === 1;   // every other group mirrors, so no two groups look the same
+      const flip = gi % 2 === 1;
       grp.querySelectorAll('.sw').forEach((f, k) => {
-        let [c0, c1, row, al] = LAYOUTS[grp.dataset.layout][k];
-        if (flip) { [c0, c1] = [11 - c1, 11 - c0]; al = al === 'l' ? 'r' : al === 'r' ? 'l' : al; }
-        // cells next to another cell step back by half the gap on that side, so neighbours always have real air between them
-        const GAP = Math.min(Math.max(innerWidth * 0.04, 48), 80);
-        const zx0 = colX(c0) + (c0 > 0 ? GAP / 2 : 0), zx1 = colX(c1) + colW - (c1 < 11 ? GAP / 2 : 0);
-        const zy0 = ROWS[row][0] * H, zy1 = ROWS[row][1] * H;
+        let [c0, c1, row, al, maxH] = SLOT[LAYOUTS[grp.dataset.layout][k]];
+        if (flip) { [c0, c1] = [11 - c1, 11 - c0]; al = al === 'l' ? 'r' : 'l'; }
+        const zx0 = colX(c0), zx1 = colX(c1) + colW, zy0 = ROWS[row][0] * H, zy1 = ROWS[row][1] * H;
         const r = parseFloat(f.dataset.r);
-        let h = zy1 - zy0, w = h * r;
-        if (w > zx1 - zx0) { w = zx1 - zx0; h = w / r; }
-        const left = al === 'l' ? zx0 : al === 'r' ? zx1 - w : (zx0 + zx1 - w) / 2;
+        // the same area for every format: a wide painting is drawn lower, so it takes no more of the screen than a tall one
+        let h = maxH * H * (r > 0.75 ? Math.sqrt(0.75 / r) : 1), w = h * r;
+        if (w > zx1 - zx0) { w = zx1 - zx0; h = w / r; }   // and never wider than its columns
+        const left = al === 'l' ? zx0 : zx1 - w;
         const top = row === 'top' ? zy0 : row === 'bot' ? zy1 - h : (zy0 + zy1 - h) / 2;
         Object.assign(f.style, { left: left + 'px', top: top + 'px', width: w + 'px', height: h + 'px' });
-        // it grows from its anchored corner or edge, and only as far as its own cell allows
-        const ox = al === 'l' ? 0 : al === 'r' ? 1 : 0.5, oy = row === 'top' ? 0 : row === 'bot' ? 1 : 0.5;
+        // it grows from its anchored edge, and only as far as its own cell allows
+        const ox = al === 'l' ? 0 : 1, oy = row === 'top' ? 0 : row === 'bot' ? 1 : 0.5;
         f.style.transformOrigin = `${ox * 100}% ${oy * 100}%`;
         const lim = (lo, hi, p0, size, o) => {   // largest scale that keeps [p0, p0 + size] inside [lo, hi]
           const op = o * size; let m = 9;
@@ -1391,6 +1428,43 @@ a:hover .arrow{transform:translateX(6px)}
       while (trails.length > 30) trails.shift().el.remove();
     });
   })();
+
+
+  /* ── Email: the address is never written on the page, so robots can't collect it.
+        It is put together only when someone clicks, and opens in their own mail program ── */
+  const MAIL = () => atob('YWxvbmFrYWxrbzg5') + '@' + atob('Z21haWwuY29t');
+  const SUBJ = { hello: 'Hello Alona', commission: 'A commission', buy: () => 'A request about ' + (document.getElementById('saleTitle').textContent || 'a painting') };
+  document.querySelectorAll('[data-mail]').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault(); e.stopImmediatePropagation();
+    const k = a.dataset.mail, subj = typeof SUBJ[k] === 'function' ? SUBJ[k]() : SUBJ[k];
+    location.href = 'mailto:' + MAIL() + (subj ? '?subject=' + encodeURIComponent(subj) : '');
+    showMail();
+  }, true));
+  // a small note at the bottom of the screen with the address and a copy button: if the computer has no mail
+  // program set up (often the case with Gmail in the browser), the visitor can still write. Only after a click.
+  let note;
+  function showMail() {
+    if (!note) {
+      note = document.createElement('div');
+      note.className = 'mailnote';
+      note.setAttribute('role', 'status');
+      note.innerHTML = '<span class="mailnote__a"></span><button type="button" class="mailnote__copy">Copy</button><button type="button" class="mailnote__x" aria-label="Close">×</button>';
+      document.body.appendChild(note);
+      note.querySelector('.mailnote__copy').addEventListener('click', () => {
+        const b = note.querySelector('.mailnote__copy');
+        (navigator.clipboard ? navigator.clipboard.writeText(MAIL()) : Promise.reject()).then(() => { b.textContent = 'Copied'; }, () => { b.textContent = 'Select and copy'; });
+      });
+      note.querySelector('.mailnote__x').addEventListener('click', () => note.classList.remove('is-on'));
+    }
+    note.querySelector('.mailnote__a').textContent = MAIL();
+    note.querySelector('.mailnote__copy').textContent = 'Copy';
+    requestAnimationFrame(() => note.classList.add('is-on'));
+    clearTimeout(note._t); note._t = setTimeout(() => note.classList.remove('is-on'), 12000);
+  }
+
+
+
+
 
 })();
 </script>
