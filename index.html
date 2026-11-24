@@ -81,6 +81,9 @@ button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor
 /* ───────── 1. Hero: a line of words, paintings trailing around it ───────── */
 .hero{position:relative; height:100vh; height:100svh; overflow:hidden}
 .hero__center{position:absolute; inset:0; z-index:30; display:grid; place-items:center; padding:0 var(--margin); pointer-events:none}
+.hero__lead{display:flex; flex-direction:column; align-items:center; gap:var(--s4); will-change:transform}
+.hero__cta{pointer-events:auto; gap:var(--s3); height:48px; padding:0 var(--s3); font-size:var(--t-body)}
+.js .hero__cta{visibility:hidden}
 .hero__line{margin:0; text-align:center; font-family:var(--serif); font-weight:300; font-size:clamp(var(--t-lead), 1.8vw, var(--t-h3)); line-height:var(--lh-h); letter-spacing:-.01em; will-change:transform}
 .hero__row{display:block; will-change:transform}
 .w{display:inline-block; white-space:nowrap}
@@ -144,11 +147,14 @@ html.has-cur .cur.is-on{opacity:1}
 html.has-cur, html.has-cur *{cursor:none !important}
 html.has-cur input, html.has-cur textarea, html.has-cur select{cursor:text !important}
 /* the address, shown only after a click on Make a request / Write to me */
-.mailnote{position:fixed; left:50%; bottom:calc(var(--s4) + env(safe-area-inset-bottom, 0px)); z-index:150; display:flex; align-items:center; gap:var(--s3); padding:var(--s2) var(--s3); background:var(--ink); color:var(--paper); font-size:var(--t-body); transform:translate(-50%, 140%); opacity:0; transition:transform .6s cubic-bezier(.19,1,.22,1), opacity .4s}
+.mailnote{max-width:calc(100vw - 2 * var(--margin)); flex-wrap:wrap; position:fixed; left:50%; bottom:calc(var(--s4) + env(safe-area-inset-bottom, 0px)); z-index:150; display:flex; align-items:center; gap:var(--s3); padding:var(--s2) var(--s3); background:var(--ink); color:var(--paper); font-size:var(--t-body); transform:translate(-50%, 140%); opacity:0; transition:transform .6s cubic-bezier(.19,1,.22,1), opacity .4s}
 .mailnote.is-on{transform:translate(-50%, 0); opacity:1}
 .mailnote__a{user-select:all; white-space:nowrap}
+.mailnote__go{color:var(--paper); border-bottom:1px solid rgba(245,242,236,.5); padding-bottom:1px}
+.mailnote__go:hover,.mailnote__copy:hover{border-color:var(--paper)}
 .mailnote__copy{color:var(--paper); border-bottom:1px solid rgba(245,242,236,.5); padding-bottom:1px}
-.mailnote__x{color:var(--paper); font-size:20px; line-height:1; opacity:.6}
+.mailnote{padding-right:calc(var(--s3) + 32px)}
+.mailnote__x{position:absolute; right:var(--s2); top:var(--s2); color:var(--paper); font-size:20px; line-height:1; opacity:.6}
 .lb{position:fixed; inset:0; z-index:100; display:grid; grid-template-columns:7fr 3fr; background:var(--paper)}
 .lb[hidden]{display:none}
 .lb--view{grid-template-columns:1fr}
@@ -420,7 +426,7 @@ a:hover .arrow{transform:translateX(6px)}
 <main>
   <!-- 1. HERO -->
   <section class="hero" id="top" aria-label="Introduction">
-    <div class="hero__center"><p class="hero__line" id="heroLine"><span class="hero__row">Loud colours</span><span class="hero__row">for loud feelings.</span></p></div>
+    <div class="hero__center"><div class="hero__lead" id="heroLead"><p class="hero__line" id="heroLine"><span class="hero__row">Unique story</span><span class="hero__row">in loud colours &amp; textures.</span></p><a class="btn btn--solid hero__cta" id="heroCta" href="#contact" data-mail="hello"><span>Make a request</span><span class="arrow" aria-hidden="true">→</span></a></div></div>
     <div class="trail" aria-hidden="true">
       <figure class="trail__item"><figcaption><span>01.</span> Bloom</figcaption><img src="assets/bright/20917035_1618816138191938_1268608333_n.jpg" alt=""></figure>
       <figure class="trail__item"><figcaption><span>02.</span> Orange hair</figcaption><img src="assets/bright/20107012_10213719663091677_211917101_o.jpg" alt=""></figure>
@@ -829,16 +835,20 @@ a:hover .arrow{transform:translateX(6px)}
   gsap.set(portrait, { xPercent: -50, yPercent: -50, x: 0, y: 0 });   // keep the CSS centring when GSAP moves it
   const heroTL = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=720%', scrub: 0.8, pin: true, invalidateOnRefresh: true } });
   // intro
-  heroTL.fromTo(chars, { opacity: 0 }, { opacity: 1, duration: 0.35, stagger: 0.008, ease: 'none' }, 0.05)
+  const heroCta = document.getElementById('heroCta'), heroLead = document.getElementById('heroLead');
+  gsap.set(heroCta, { visibility: 'visible' });
+  // the first screen is never empty: the slogan and the button are there from the start
+  heroTL.fromTo(heroCta, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.15, ease: 'none', immediateRender: false }, 0.9)
     .fromTo(chars, { opacity: 1 }, { opacity: 0, duration: 0.1, stagger: 0.002, ease: 'none', immediateRender: false }, 0.95);
   order.forEach((i, k) => heroTL.fromTo(prog[i], { a: 0 }, { a: 1, duration: 0.25, ease: 'power2.out' }, 1.2 + k * 0.055));
   tItems.forEach((_, i) => heroTL.fromTo(prog[i], { m: 0 }, { m: 1, duration: 0.5, ease: 'power2.inOut' }, 2.2));
   heroTL.fromTo(chars, { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.003, ease: 'none', immediateRender: false }, 2.5)
+    .fromTo(heroCta, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none', immediateRender: false }, 2.6)
     .fromTo(caps, { opacity: 0 }, { opacity: 1, duration: 0.15, stagger: 0.004, ease: 'none' }, 2.6);
   // the grid and the slogan drift up and off the screen, as if the page moved on
   const E = INTRO + 0.3;
   heroTL.fromTo(st, { lift: 0 }, { lift: 1, duration: 1.4, ease: 'power1.in' }, E)
-    .fromTo(heroLine, { y: 0 }, { y: () => -innerHeight * 0.75, duration: 1.4, ease: 'power2.in' }, E)
+    .fromTo(heroLead, { y: 0 }, { y: () => -innerHeight * 0.75, duration: 1.4, ease: 'power2.in' }, E)
     // only once every painting has left: a moment of empty paper, then the photo rises from below and opens from nothing
     .fromTo(portrait, { y: () => innerHeight * 0.45, clipPath: 'inset(50% 0% 50% 0%)' }, { y: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: 1.5, ease: 'power3.out', immediateRender: true }, E + 1.75)
     .fromTo(portraitImg, { scale: 1.3 }, { scale: 1, duration: 1.8, ease: 'power2.out' }, E + 1.75)
@@ -857,7 +867,7 @@ a:hover .arrow{transform:translateX(6px)}
     const im = f.querySelector('img');
     return (im.decode ? im.decode() : Promise.resolve()).catch(() => {});
   }));
-  Promise.race([decoded, new Promise(r => setTimeout(r, 4000))]).then(() => {
+  Promise.race([decoded, new Promise(r => setTimeout(r, 1200))]).then(() => {   // start soon; the first screen already shows the slogan
     if (document.fonts) return document.fonts.ready;   // refresh once, before the intro starts, never during it
   }).then(() => {
     ScrollTrigger.sort();   // created out of page order (pinned blocks above them were made later); refresh top to bottom
@@ -1437,18 +1447,19 @@ a:hover .arrow{transform:translateX(6px)}
   document.querySelectorAll('[data-mail]').forEach(a => a.addEventListener('click', e => {
     e.preventDefault(); e.stopImmediatePropagation();
     const k = a.dataset.mail, subj = typeof SUBJ[k] === 'function' ? SUBJ[k]() : SUBJ[k];
+    lastSubject = subj;
     location.href = 'mailto:' + MAIL() + (subj ? '?subject=' + encodeURIComponent(subj) : '');
     showMail();
   }, true));
   // a small note at the bottom of the screen with the address and a copy button: if the computer has no mail
   // program set up (often the case with Gmail in the browser), the visitor can still write. Only after a click.
-  let note;
+  let note, lastSubject = '';
   function showMail() {
     if (!note) {
       note = document.createElement('div');
       note.className = 'mailnote';
       note.setAttribute('role', 'status');
-      note.innerHTML = '<span class="mailnote__a"></span><button type="button" class="mailnote__copy">Copy</button><button type="button" class="mailnote__x" aria-label="Close">×</button>';
+      note.innerHTML = '<span class="mailnote__a"></span><a class="mailnote__go" data-go="gmail" target="_blank" rel="noopener">Gmail</a><a class="mailnote__go" data-go="outlook" target="_blank" rel="noopener">Outlook</a><button type="button" class="mailnote__copy">Copy</button><button type="button" class="mailnote__x" aria-label="Close">×</button>';
       document.body.appendChild(note);
       note.querySelector('.mailnote__copy').addEventListener('click', () => {
         const b = note.querySelector('.mailnote__copy');
@@ -1457,6 +1468,10 @@ a:hover .arrow{transform:translateX(6px)}
       note.querySelector('.mailnote__x').addEventListener('click', () => note.classList.remove('is-on'));
     }
     note.querySelector('.mailnote__a').textContent = MAIL();
+    // the same letter, opened directly in Gmail or Outlook in the browser, for visitors without a mail program
+    const to = encodeURIComponent(MAIL()), su = encodeURIComponent(lastSubject || '');
+    note.querySelector('[data-go=gmail]').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}`;
+    note.querySelector('[data-go=outlook]').href = `https://outlook.live.com/mail/0/deeplink/compose?to=${to}&subject=${su}`;
     note.querySelector('.mailnote__copy').textContent = 'Copy';
     requestAnimationFrame(() => note.classList.add('is-on'));
     clearTimeout(note._t); note._t = setTimeout(() => note.classList.remove('is-on'), 12000);
