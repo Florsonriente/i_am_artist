@@ -73,7 +73,15 @@ button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor
 .nav__links a:hover,.nav__links a:focus-visible{opacity:1}
 .nav__logo{display:block; line-height:0}
 .nav__logo svg{display:block}
-.nav__links{display:flex; gap:var(--s4)}
+.nav__links{display:flex; align-items:center; gap:var(--s4)}
+/* the header in three parts: logo left, menu in the middle, the button right, so it holds its balance */
+.nav{display:grid !important; grid-template-columns:1fr auto 1fr}
+.nav__logo{justify-self:start}
+.nav__links{justify-self:center}
+/* the button: a thin outline, quiet but always there; on hover only the arrow moves, nothing gets filled */
+.nav__cta{justify-self:end; white-space:nowrap; display:inline-flex; align-items:center; gap:var(--s1); padding:var(--s1) var(--s2); border:1px solid currentColor; font-weight:300; letter-spacing:.01em}
+.nav__cta .arrow{transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+.nav__cta:hover .arrow{transform:translateX(4px)}
 .nav__links a{position:relative}
 .nav__links a::after{content:""; position:absolute; left:0; right:0; bottom:-2px; height:1px; background:currentColor; transform:scaleX(0); transform-origin:left; transition:transform .5s cubic-bezier(.2,.7,.2,1)}
 .nav__links a:hover::after{transform:scaleX(1)}
@@ -374,6 +382,11 @@ a:hover .arrow{transform:translateX(6px)}
   .nav__links{gap:var(--s2)}
   .trail__item figcaption{display:none}
   .nav__links a[href="#order"]{display:none}
+  .nav__links a[href="#about"]{display:none}
+  .nav{grid-template-columns:auto 1fr auto; column-gap:var(--s2)}
+  .nav__links{justify-self:end}
+  .nav__cta{padding:6px var(--s1)}
+  .nav__cta .arrow{display:none}
   .about{display:block; min-height:0}
   .about__eyebrow{position:static}
   .about__scatter{position:static; display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-top:var(--s6)}
@@ -421,12 +434,13 @@ a:hover .arrow{transform:translateX(6px)}
     <a href="#order">order</a>
     <a href="#contact">contact</a>
   </nav>
+  <a class="nav__cta" href="#contact" data-mail="hello"><span>Make a request</span><span class="arrow" aria-hidden="true">→</span></a>
 </header>
 
 <main>
   <!-- 1. HERO -->
   <section class="hero" id="top" aria-label="Introduction">
-    <div class="hero__center"><div class="hero__lead" id="heroLead"><p class="hero__line" id="heroLine"><span class="hero__row">Unique story</span><span class="hero__row">in loud colours &amp; textures.</span></p><a class="btn btn--solid hero__cta" id="heroCta" href="#contact" data-mail="hello"><span>Make a request</span><span class="arrow" aria-hidden="true">→</span></a></div></div>
+    <div class="hero__center"><div class="hero__lead" id="heroLead"><p class="hero__line" id="heroLine"><span class="hero__row">Unique moment</span><span class="hero__row">as a piece of art.</span></p></div></div>
     <div class="trail" aria-hidden="true">
       <figure class="trail__item"><figcaption><span>01.</span> Bloom</figcaption><img src="assets/bright/20917035_1618816138191938_1268608333_n.jpg" alt=""></figure>
       <figure class="trail__item"><figcaption><span>02.</span> Orange hair</figcaption><img src="assets/bright/20107012_10213719663091677_211917101_o.jpg" alt=""></figure>
@@ -440,8 +454,6 @@ a:hover .arrow{transform:translateX(6px)}
       <figure class="trail__item"><figcaption><span>10.</span> Blonde</figcaption><img src="assets/bright/19911851_10213719668771819_1361194627_o.jpg" alt=""></figure>
       <figure class="trail__item"><figcaption><span>11.</span> Rabbit</figcaption><img src="assets/silv_gold/IMG_20190122_165407_538.jpg" alt=""></figure>
       <figure class="trail__item"><figcaption><span>12.</span> Red hair</figcaption><img src="assets/bright/19911761_10213719668251806_989909012_o.jpg" alt=""></figure>
-      <figure class="trail__item"><figcaption><span>13.</span> Horse</figcaption><img src="assets/silv_gold/IMG_20190212_111509.jpg" alt=""></figure>
-      <figure class="trail__item"><figcaption><span>14.</span> Pink blossom</figcaption><img src="assets/trenners/IMG_20190517_155224_500.jpg" alt=""></figure>
     </div>
     <div class="hero__portrait">
       <img src="assets/artist/me_in_studio.png" alt="Alona Kalko sitting on a wooden stool in her studio, holding a brush">
@@ -471,7 +483,7 @@ a:hover .arrow{transform:translateX(6px)}
       <h2 class="section-title about__title">Texture, colour, touch.</h2>
       <p class="reveal">I’m Alona Kalko, a Ukrainian painter living in Germany and painting independently. I work in oil, mostly with a palette knife, and mix techniques whenever a painting asks for it.</p>
       <p class="reveal">I love texture: thick strokes you could almost read with your fingertips, bright colour that never apologises, the weight of paint sitting on the canvas. For me a painting is something you experience with your eyes and with your hands at the same time.</p>
-      <p class="reveal">My work moves between two worlds: the many faces of a woman, and the quiet friendship between children and animals.</p>
+      <p class="reveal">Here you will find two of my series: the many faces of a woman, and the quiet friendship between children and animals.</p>
     </div>
     <div class="about__scatter">
       <figure class="scatter sc-1" data-speed="0.6"><img src="assets/trenners/IMG_20190109_160425_066.jpg" alt=""></figure>
@@ -766,7 +778,7 @@ a:hover .arrow{transform:translateX(6px)}
     });
     // the grid: evenly spaced columns, every other column set a little lower; centre left free for the slogan
     const cols = mob ? 3 : 6, rowsY = mob ? [0.13, 0.31, 0.5, 0.69, 0.87] : [0.2, 0.5, 0.8];
-    const skip = mob ? ['1,2'] : ['2,1', '3,1', '1,2', '4,0'];   // 14 cells for 14 paintings; the left column holds three
+    const skip = mob ? ['0,2', '1,2', '2,2'] : ['0,1', '2,1', '3,1', '5,1', '1,2', '4,0'];   // 12 cells for 12 paintings, the middle row kept free around the slogan
     const span = vw - 2 * margin - T, cells = [];
     for (let c = 0; c < cols; c++) for (let r = 0; r < rowsY.length; r++) {
       if (skip.includes(c + ',' + r)) continue;
@@ -835,15 +847,12 @@ a:hover .arrow{transform:translateX(6px)}
   gsap.set(portrait, { xPercent: -50, yPercent: -50, x: 0, y: 0 });   // keep the CSS centring when GSAP moves it
   const heroTL = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: '+=720%', scrub: 0.8, pin: true, invalidateOnRefresh: true } });
   // intro
-  const heroCta = document.getElementById('heroCta'), heroLead = document.getElementById('heroLead');
-  gsap.set(heroCta, { visibility: 'visible' });
-  // the first screen is never empty: the slogan and the button are there from the start
-  heroTL.fromTo(heroCta, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.15, ease: 'none', immediateRender: false }, 0.9)
-    .fromTo(chars, { opacity: 1 }, { opacity: 0, duration: 0.1, stagger: 0.002, ease: 'none', immediateRender: false }, 0.95);
+  const heroLead = document.getElementById('heroLead');
+  // the first screen is never empty: the slogan is there from the start
+  heroTL.fromTo(chars, { opacity: 1 }, { opacity: 0, duration: 0.1, stagger: 0.002, ease: 'none', immediateRender: false }, 0.95);
   order.forEach((i, k) => heroTL.fromTo(prog[i], { a: 0 }, { a: 1, duration: 0.25, ease: 'power2.out' }, 1.2 + k * 0.055));
   tItems.forEach((_, i) => heroTL.fromTo(prog[i], { m: 0 }, { m: 1, duration: 0.5, ease: 'power2.inOut' }, 2.2));
   heroTL.fromTo(chars, { opacity: 0 }, { opacity: 1, duration: 0.2, stagger: 0.003, ease: 'none', immediateRender: false }, 2.5)
-    .fromTo(heroCta, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none', immediateRender: false }, 2.6)
     .fromTo(caps, { opacity: 0 }, { opacity: 1, duration: 0.15, stagger: 0.004, ease: 'none' }, 2.6);
   // the grid and the slogan drift up and off the screen, as if the page moved on
   const E = INTRO + 0.3;
