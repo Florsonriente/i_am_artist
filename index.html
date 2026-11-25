@@ -700,12 +700,12 @@ a:hover .arrow{transform:translateX(6px)}
 
 <footer class="footer">
   <span>© 2026 Alona Kalko</span>
-  <span class="footer__legal"><button type="button" data-legal="impressum">Impressum</button><button type="button" data-legal="datenschutz">Datenschutz</button></span>
+  <span class="footer__legal"><button type="button" data-legal="impressum">Impressum</button><button type="button" data-legal="privacy">Privacy policy</button></span>
   <span>All paintings by the artist</span>
 </footer>
 
 <!-- Impressum and Datenschutz: in English like the site, under the German names people look for; they open over the page from the footer
-     (and directly from a link ending in #impressum or #datenschutz) -->
+     (and directly from a link ending in #impressum or #privacy) -->
 <div class="legal" id="legal" role="dialog" aria-modal="true" aria-label="Impressum and privacy policy" hidden data-lenis-prevent>
   <button class="legal__close" type="button" aria-label="Close">×</button>
   <article class="legal__page" data-page="impressum">
@@ -716,12 +716,14 @@ a:hover .arrow{transform:translateX(6px)}
     <p>Email: <a class="legal__mail" href="#" data-mail="hello"></a></p>
     <h3>Responsible for the content</h3>
     <p>Alona Kalko, address as above.</p>
+    <h3>About this website</h3>
+    <p>This website is an artist’s portfolio. It is not an online shop: no purchase, order or payment can be made on it, and no contract is concluded through it. Prices are given for orientation only and are not binding offers. A message sent via “Make a request” is a non-binding enquiry. Any sale of a painting or any commission is agreed individually and in writing between the buyer and Alona Kalko.</p>
     <h3>Copyright</h3>
     <p>All paintings, photographs and texts on this website are protected by copyright and are the work of Alona Kalko. Any copying, editing or distribution beyond what copyright law allows requires her prior written consent.</p>
   </article>
-  <article class="legal__page" data-page="datenschutz">
-    <h2 class="legal__title">Datenschutz</h2>
-    <p class="legal__lead">Privacy policy · last updated November 2026</p>
+  <article class="legal__page" data-page="privacy">
+    <h2 class="legal__title">Privacy policy</h2>
+    <p class="legal__lead">Datenschutzerklärung · last updated November 2026</p>
     <h3>1. Who is responsible</h3>
     <p>Alona Kalko, Enzensbergerstraße 30, 85570 Markt Schwaben, Germany<br>Email: <a class="legal__mail" href="#" data-mail="hello"></a></p>
     <h3>2. In short</h3>
@@ -941,6 +943,14 @@ a:hover .arrow{transform:translateX(6px)}
     if (reduce || !lenis) { window.scrollTo(0, introEnd()); return; }
     if (window.scrollY < introEnd() - 2) lenis.scrollTo(introEnd(), { duration: 8, easing: t => t });
   });
+
+  // the logo leads back to the first picture of the site: the slogan in the middle of the grid
+  document.querySelector('.nav__logo').addEventListener('click', e => {
+    e.preventDefault(); e.stopImmediatePropagation();
+    const go = () => lenis ? lenis.scrollTo(introEnd(), { duration: 1.6 }) : window.scrollTo({ top: introEnd(), behavior: reduce ? 'auto' : 'smooth' });
+    const lbEl = document.getElementById('lightbox');
+    if (lbEl && !lbEl.hidden) closeLightbox(go); else go();
+  }, true);
 
   /* ── 3 & 7. Statement and studio film: the image between the words grows to full screen ── */
   document.querySelectorAll('.statement').forEach(sec => {
@@ -1548,7 +1558,7 @@ a:hover .arrow{transform:translateX(6px)}
 
 
 
-  /* ── Impressum and Datenschutz: open over the page from the footer, or straight from #impressum / #datenschutz ── */
+  /* ── Impressum and privacy policy: open over the page from the footer, or straight from #impressum / #privacy ── */
   (() => {
     const box = document.getElementById('legal');
     if (!box) return;
@@ -1571,7 +1581,7 @@ a:hover .arrow{transform:translateX(6px)}
     document.querySelectorAll('[data-legal]').forEach(b => b.addEventListener('click', () => open(b.dataset.legal)));
     box.querySelector('.legal__close').addEventListener('click', close);
     addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) close(); });
-    const fromHash = () => { const h = location.hash.slice(1); if (h === 'impressum' || h === 'datenschutz') open(h); };
+    const fromHash = () => { let h = location.hash.slice(1); if (h === 'datenschutz') h = 'privacy'; if (h === 'impressum' || h === 'privacy') open(h); };
     fromHash(); addEventListener('hashchange', fromHash);
   })();
 
